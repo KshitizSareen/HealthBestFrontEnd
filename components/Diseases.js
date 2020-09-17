@@ -13,6 +13,7 @@ import NetInfo from '@react-native-community/netinfo';
 import {FontAwesomeIcon} from '@fortawesome/react-native-fontawesome';
 import {faSearch} from '@fortawesome/free-solid-svg-icons';
 import SectionedMultiSelect from 'react-native-sectioned-multi-select';
+import axios from 'axios';
 var dimensions=Dimensions.get('window');
 var width=dimensions.width;
 var height=dimensions.height;
@@ -26,38 +27,22 @@ class Diseases extends Component{
             Diseases: [],
             DiseasesinList: [],
             selectedItems :[],
+            filters: [],
         };
       }
-     
-      items = [
-        // this is the parent or 'item'[
-            {
-              name: 'Apple',
-              id: 10,
-            },
-            {
-              name: 'Strawberry',
-              id: 17,
-            },
-            {
-              name: 'Pineapple',
-              id: 13,
-            },
-            {
-              name: 'Banana',
-              id: 14,
-            },
-            {
-              name: 'Watermelon',
-              id: 15,
-            },
-            {
-              name: 'Kiwi fruit',
-              id: 16,
-            },
-      
-      ];
-      
+      componentDidMount(){
+        NetInfo.fetch().then((state)=>{
+          state.isConnected ? 
+          axios({
+            headers:{
+            'Authorization': 'Token 12e8892c90d633670f2bf1d6a87d1efd938d83ce',
+          'Content-Type':'application/json',
+          },
+          url: 'https://healthbestbackend.herokuapp.com/app/items/',
+            method: 'GET',
+          }).then(res=>alert(res.data[0].Type)) : Alert.alert('', 'Please connect to the internet');
+        })
+      }
       
       fetchItems=()=>{
 
@@ -74,7 +59,7 @@ class Diseases extends Component{
               </TouchableOpacity>
             </View>
             <SectionedMultiSelect
-          items={this.items}
+          items={this.state.filters}
           uniqueKey="id"
           subKey="children"
           selectText="Choose some things..."

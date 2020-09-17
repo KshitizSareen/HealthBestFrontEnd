@@ -17,6 +17,7 @@ var width=dimensions.width;
 var height=dimensions.height;
 width=parseInt(width);
 height=parseInt(height);
+import axios from 'axios';
 class Authentication extends Component{
   constructor(props) {
     super(props);
@@ -106,33 +107,26 @@ class Authentication extends Component{
           <TouchableOpacity
             style={styles.button}
             onPress={() => {
+              var body={
+                username:this.state.username.toLowerCase(),
+                password: this.state.password
+              }
               if(this.state.currentpage=="login")
               {
               NetInfo.fetch().then((state) => {
                 state.isConnected
-                  ? fetch(
-                      'https://healthbest-api.herokuapp.com/api-auth/',
-                      {
-                        method: 'POST',
-                        headers: {
-                          'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify({
-                          username: this.state.username.toLowerCase(),
-                          password: this.state.password,
-                        }),
-                      },
-                    ).then((res) => {
-                      if (!res.ok) {
-                        Alert.alert('', 'Invalid Credentials');
-                      } else {
-                        this.fetchItems();
-                        this.props.navigation.navigate('Diseases',{
-                          username: this.state.username.toLowerCase(),
-                          token: res.token,
-                        });
-                      }
-                    })
+                  ? axios({
+                    headers:{
+                    
+                  'Content-Type':'application/json',
+                  },
+                  
+                data: body,
+              
+                  url: 'https://healthbestbackend.herokuapp.com/auth/',
+                    method: 'POST',
+                  
+                  }).then(res=>alert(res.data.token))
                   : Alert.alert('', 'Please connect to the internet');
               });
             }
@@ -141,7 +135,7 @@ class Authentication extends Component{
               NetInfo.fetch().then((state) => {
                 state.isConnected
                   ? fetch(
-                      'https://healthbest-api.herokuapp.com/api/users/',
+                      'https://healthbestbackend.herokuapp.com/app/users/',
                       {
                         method: 'POST',
                         headers: {
