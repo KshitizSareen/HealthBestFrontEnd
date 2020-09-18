@@ -126,7 +126,9 @@ class Authentication extends Component{
                   url: 'https://healthbestbackend.herokuapp.com/auth/',
                     method: 'POST',
                   
-                  }).then(res=>alert(res.data.token))
+                  }).then(res=>this.props.navigation.navigate('Diseases',{token: res.data.token})).catch(err=>{
+                    Alert.alert("","Invalid Credentials");
+                  })
                   : Alert.alert('', 'Please connect to the internet');
               });
             }
@@ -134,24 +136,22 @@ class Authentication extends Component{
             {
               NetInfo.fetch().then((state) => {
                 state.isConnected
-                  ? fetch(
-                      'https://healthbestbackend.herokuapp.com/app/users/',
-                      {
-                        method: 'POST',
-                        headers: {
-                          'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify({
-                          username: this.state.username.toLowerCase(),
-                          password: this.state.password,
-                        }),
-                      },
-                    ).then((res) => {
-                      if (!res.ok) {
-                        Alert.alert('', 'Username already exists');
-                      } else {
+                  ? axios({
+                      headers:{
+                      
+                    'Content-Type':'application/json',
+                    },
+                    
+                  data: body,
+                
+                    url: 'https://healthbestbackend.herokuapp.com/app/users/',
+                      method: 'POST',
+                    
+                    }).then((res) => {
                         Alert.alert('', 'Signup Succesful');
-                      }
+                      
+                    }).catch(()=>{
+                      Alert.alert("","Username already exists");
                     })
                   : Alert.alert('', 'Please connect to the internet');
               });

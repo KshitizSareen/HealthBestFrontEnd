@@ -7,13 +7,15 @@ import {
   Alert,
   FlatList,
   Dimensions,
-  TextInput
+  TextInput,
+  Image
 } from 'react-native';
 import NetInfo from '@react-native-community/netinfo';
 import {FontAwesomeIcon} from '@fortawesome/react-native-fontawesome';
-import {faSearch} from '@fortawesome/free-solid-svg-icons';
+import {faSearch,faCheck,faWindowClose,faArrowDown,faArrowUp} from '@fortawesome/free-solid-svg-icons';
 import SectionedMultiSelect from 'react-native-sectioned-multi-select';
 import axios from 'axios';
+
 var dimensions=Dimensions.get('window');
 var width=dimensions.width;
 var height=dimensions.height;
@@ -25,51 +27,207 @@ class Diseases extends Component{
     
         this.state = {
             Diseases: [],
-            DiseasesinList: [],
+            DiseasesinitialList: [],
             selectedItems :[],
             filters: [],
+            symptoms: [],
         };
       }
+      icon = ({ name, size = 18, style }) => {
+        // flatten the styles
+        const flat = StyleSheet.flatten(style)
+        // remove out the keys that aren't accepted on View
+        const { color, fontSize, ...styles } = flat
+    
+        let iconComponent
+        // the colour in the url on this site has to be a hex w/o hash
+        const iconColor = color && color.substr(0, 1) === '#' ? `${color.substr(1)}/` : ''
+    
+        const Search = (
+          <FontAwesomeIcon icon={faSearch} size="15" />
+        )
+        const Close = (
+          <FontAwesomeIcon icon={faWindowClose} size="15" />
+        )
+    
+        const Check = (
+          <FontAwesomeIcon icon={faCheck} size="15" />
+        )
+        const Cancel = (
+          <FontAwesomeIcon icon={faWindowClose} size="10" />
+        )
+        const Down = (
+          <Image
+          />
+        )
+        const Up = (
+          <Image
+          />
+        )
+    
+        switch (name) {
+          case 'search':
+            iconComponent = Search
+            break
+          case 'keyboard-arrow-up':
+            iconComponent = Up
+            break
+          case 'keyboard-arrow-down':
+            iconComponent = Down
+            break
+          case 'close':
+            iconComponent = Close
+            break
+          case 'check':
+            iconComponent = Check
+            break
+          case 'cancel':
+            iconComponent = Cancel
+            break
+          default:
+            iconComponent = null
+            break
+        }
+        return <View style={styles}>{iconComponent}</View>
+      }
       componentDidMount(){
+        var checkedsymptoms=[];
         NetInfo.fetch().then((state)=>{
           state.isConnected ? 
           axios({
             headers:{
-            'Authorization': 'Token 12e8892c90d633670f2bf1d6a87d1efd938d83ce',
+            'Authorization': 'Token '+this.props.route.params.token,
           'Content-Type':'application/json',
           },
-          url: 'https://healthbestbackend.herokuapp.com/app/items/',
+          url: 'https://healthbestbackend.herokuapp.com/app/diseases/',
             method: 'GET',
-          }).then(res=>alert(res.data[0].Type)) : Alert.alert('', 'Please connect to the internet');
+          }).then(res=>{
+            var symptoms=new Object();
+            symptoms.name='Symptoms';
+            symptoms.id=0;
+            var filters=new Array();
+            var count=1;
+            var Diseases=new Array();
+            for(var i=0;i<res.data.length;i++)
+            {
+              var results=res.data[i].symptoms.split(",");
+              for(var j=0;j<results.length;j++)
+              {
+                if(!checkedsymptoms.includes(results[j]))
+                {
+                  var object=new Object();
+                  object.name=results[j];
+                  object.id=results[j];
+                filters.push(object);
+                count+=1;
+                checkedsymptoms.push(results[j]);
+                }
+              }
+              var object1=new Object();
+              object1.title=res.data[i].title;
+              object1.symptoms=results;
+              Diseases.push(object1);
+              this.setState({Diseases: Diseases});
+              this.setState({DiseasesinitialList:Diseases});
+            }
+            symptoms.children=filters;
+            var array=new Array();
+            array.push(symptoms);
+            this.setState({symptoms:array});
+          }) : Alert.alert('', 'Please connect to the internet');
         })
       }
-      
-      fetchItems=()=>{
-
+      onSelectedItemsChange = (selectedItems) => {
+        this.setState({ selectedItems: selectedItems });
+        var filterarray=new Array();
+        if(selectedItems.length>0)
+        {
+          this.state.DiseasesinitialList.forEach(element => {
+            var val=0;
+            for(var i=0;i<selectedItems.length;i++)
+            {
+              if(element.symptoms.includes(selectedItems[i]))
+              {
+                val=1;
+              }
+              else
+              {
+                val=0;
+                break;
+            }};
+            if(val==1)
+            {
+              filterarray.push(element);
+            }
+            
+          });
+        }
+        if(selectedItems.length==0)
+        {
+          filterarray=this.state.DiseasesinitialList;
+        }
+        this.setState({Diseases: filterarray});
       };
+      ItemSeparatorComponent = () => {
+        return (
+          <View style={{height: 1, width: '100%', backgroundColor: '#ffff'}} />
+        );
+      };
+      FilterThroughSearch=(substr)=>{
+        var newarr=new Array();
+        if(substr!="")
+        {
+        this.state.Diseases.forEach(element => {
+          if(element.title.toLowerCase().includes(substr.toLowerCase()))
+          {
+            newarr.push(element);
+          }
+          
+        });
+        this.setState({Diseases: newarr});
+      }
+      else
+      {
+        this.setState({Diseases:this.state.DiseasesinitialList});
+      }
+
+      }
       render()
       {
         const { selectedItems } = this.state;
         return(
           <View style={styles.container}>
             <View style={styles.sections}>
-              <TextInput style={styles.textinput}/>
-              <TouchableOpacity style={styles.button}> 
-              <FontAwesomeIcon icon={faSearch} size="20" />
-              </TouchableOpacity>
+              <TextInput style={styles.textinput} onChangeText={(substr)=>{
+                this.FilterThroughSearch(substr);
+              }}/>
+
             </View>
+            <View style={styles.sectionBottom}>
             <SectionedMultiSelect
-          items={this.state.filters}
+          items={this.state.symptoms}
           uniqueKey="id"
           subKey="children"
-          selectText="Choose some things..."
-          showDropDowns={true}
-          readOnlyHeadings={true}
+          selectText="Check Your Symptoms"
+          showDropDowns={false}
+          readOnlyHeadings={false}
           onSelectedItemsChange={this.onSelectedItemsChange}
           selectedItems={this.state.selectedItems}
+          iconRenderer={this.icon}
         />
+        <FlatList data={this.state.Diseases}
+        renderItem={(Disease)=>{
+          return (
+            <TouchableOpacity style={styles.list}>
+              <Text style={styles.text}>{Disease.item.title}</Text>
+            </TouchableOpacity>
+          );
+        }}
+        ItemSeparatorComponent={this.ItemSeparatorComponent}/>
 
           </View>
+          </View>
+          
         )
       }
 
@@ -77,7 +235,7 @@ class Diseases extends Component{
 }
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: '#F5FCFF',
+    backgroundColor: 'lightblue',
     flex: 1,
     alignContent:'center'
   },
@@ -86,14 +244,14 @@ const styles = StyleSheet.create({
     color: 'rgb(38,50,56)',
     fontWeight: '700',
     fontSize: 14,
-    backgroundColor: 'rgba(136, 126, 126, 0.04)',
+    backgroundColor: 'white',
     padding: 10,
     borderRadius: 20,
     marginTop: 0.06 * height,
     marginBottom: 0.03 * height,
     alignSelf: 'center',
     fontFamily: 'sans-serif',
-    height: 30
+    height: 40
   },
   sections: {
     flexDirection: 'row',
@@ -116,6 +274,26 @@ const styles = StyleSheet.create({
     width: '7%',
     alignSelf: 'center',
     marginTop: 0.05 * width,
+    
   },
+  list: {
+    color: '#fff',
+    padding: 3,
+    fontFamily: 'arial',
+    fontSize: 13,
+    width: '98%',
+    alignSelf: 'center',
+     margin: 3,
+     backgroundColor: 'white',
+     elevation: 10,
+     shadowOpacity: 0.3,
+    borderRadius: 10,
+  },
+  text:{
+    fontSize:30
+  },
+  sectionBottom:{
+    flex: 0.90,
+  }
 });
 export default Diseases;
