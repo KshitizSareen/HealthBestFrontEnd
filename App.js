@@ -21,6 +21,7 @@ import {
 } from 'react-native';
 import Authentication from './components/Authentication.js';
 import Diseases from './components/Diseases.js';
+import DiseasePage from './components/DiseasePage.js';
 var dimensions=Dimensions.get('window');
 var width=dimensions.width;
 var height=dimensions.height;
@@ -45,6 +46,12 @@ class App extends Component{
           component={Diseases}
           options={{
             title: 'Diseases',
+            headerStyle: {backgroundColor: '#F0f0f7'}
+          }}/>
+          <Stack.Screen name="DiseasePage"
+          component={DiseasePage}
+          options={{
+            title: 'Symptoms',
             headerStyle: {backgroundColor: '#F0f0f7'}
           }}/>
         </Stack.Navigator>

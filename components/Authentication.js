@@ -7,11 +7,11 @@ import {
     Dimensions,
     TouchableOpacity,
     Alert,
-    AsyncStorage,
-    TextInput,
-    CheckBox,}
+    TextInput,}
     from 'react-native';
     var Tabs = require('react-native-tabs');
+import CheckBox from '@react-native-community/checkbox';    
+import AsyncStorage from '@react-native-community/async-storage';
 var dimensions=Dimensions.get('window');
 var width=dimensions.width;
 var height=dimensions.height;

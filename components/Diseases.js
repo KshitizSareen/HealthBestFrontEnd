@@ -126,6 +126,7 @@ class Diseases extends Component{
               var object1=new Object();
               object1.title=res.data[i].title;
               object1.symptoms=results;
+              object1.description=res.data[i].description;
               Diseases.push(object1);
               this.setState({Diseases: Diseases});
               this.setState({DiseasesinitialList:Diseases});
@@ -218,7 +219,11 @@ class Diseases extends Component{
         <FlatList data={this.state.Diseases}
         renderItem={(Disease)=>{
           return (
-            <TouchableOpacity style={styles.list}>
+            <TouchableOpacity style={styles.list} onPress={
+              ()=>{
+                this.props.navigation.navigate("DiseasePage",{description: Disease.item.description,symptoms:Disease.item.symptoms});
+              }
+            }>
               <Text style={styles.text}>{Disease.item.title}</Text>
             </TouchableOpacity>
           );
@@ -283,14 +288,16 @@ const styles = StyleSheet.create({
     fontSize: 13,
     width: '98%',
     alignSelf: 'center',
-     margin: 3,
-     backgroundColor: 'white',
-     elevation: 10,
      shadowOpacity: 0.3,
     borderRadius: 10,
   },
   text:{
-    fontSize:30
+    fontSize:30,
+    margin: 5,
+    fontSize: 25,
+    fontFamily: 'arial',
+    fontStyle: 'italic',
+    fontWeight: 'bold'
   },
   sectionBottom:{
     flex: 0.90,
