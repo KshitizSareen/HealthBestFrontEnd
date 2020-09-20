@@ -12,7 +12,7 @@ import {
 } from 'react-native';
 import NetInfo from '@react-native-community/netinfo';
 import {FontAwesomeIcon} from '@fortawesome/react-native-fontawesome';
-import {faPlus,faArrowDown} from '@fortawesome/free-solid-svg-icons';
+import {faPlus,faArrowDown, faTrash, faEdit, faArrowUp} from '@fortawesome/free-solid-svg-icons';
 import SectionedMultiSelect from 'react-native-sectioned-multi-select';
 import axios from 'axios';
 var dimensions=Dimensions.get('window');
@@ -32,6 +32,8 @@ class Schedule extends Component{
             modelTimeVisible: false,
             modelMedicineVisible: false, 
             scheduleName: "",
+            method: 'POST',
+            id: 0,
         };
       }
       componentDidMount()
@@ -52,7 +54,10 @@ class Schedule extends Component{
                       {
                           if(res.data[i].user==this.props.route.params.user)
                           {
-                              schedules.push(res.data[i]);
+                            var object=new Object();
+                            object.schedule=res.data[i];
+                            object.icon=faArrowDown;
+                              schedules.push(object);
                           }
                       }
                       this.setState({schedules: schedules});
@@ -84,6 +89,14 @@ class Schedule extends Component{
                         name: this.state.scheduleName,
                         user: this.props.route.params.user,
                     };
+                    var id="";
+                    if(this.state.id==0)
+                    {
+                      id="";
+                    }
+                    else{
+                      id=this.state.id.toString()+'/';
+                    }
                     axios({
                         headers:{
                             'Authorization': 'Token '+this.props.route.params.token,
@@ -91,33 +104,35 @@ class Schedule extends Component{
                           
                         },
                         data: body,
-                        url: 'https://healthbestbackend.herokuapp.com/app/schedules/',
-                        method: 'POST',
-                      }).then(()=>{
-                        axios({
-                            headers:{
-                              'Content-Type':'application/json',
-                              'Authorization': 'Token '+this.props.route.params.token,
-                            },
-                            url: 'https://healthbestbackend.herokuapp.com/app/schedules/',
-                            method: 'GET',
-                          }).then((res)=>{
-                              var schedules=new Array();
-                              for(var i=0;i<res.data.length;i++)
-                              {
-                                  if(res.data[i].user=this.props.route.params.user)
-                                  {
-                                      schedules.push(res.data[i]);
-                                  }
-                              }
-                              this.setState({schedules: schedules});
-                              this.setState({modalScheduleVisible: false});
-                            
-                          });
+                        url: 'https://healthbestbackend.herokuapp.com/app/schedules/'+id,
+                        method: this.state.method,
+                      }).then((res)=>{
+                        var schedules=this.state.schedules;
+                        if(this.state.method=="PUT")
+                        {
+                          for(var i=0;i<schedules.length;i++)
+                          {
+                            if(schedules[i].schedule.id==res.data.id)
+                            {
+                              schedules[i].schedule.name=res.data.name;
+                              break;
+                            }
+                          }
+                        }
+                        else
+                        {
+                          var object=new Object();
+                          object.schedule=res.data;
+                          object.icon=faArrowDown;
+                          schedules.push(object);
+
+                        }
+                        this.setState({schedules: schedules});
+                        this.setState({modalScheduleVisible: false});
                       })
                 }}>
                     
-                    <Text>Create Schedule</Text>
+                    <Text>{this.state.method=="POST" ? 'Create': 'Update'} Schedule</Text>
                 </TouchableOpacity>
                 <TouchableOpacity style={styles.button} onPress={()=>{
                     this.setState({modalScheduleVisible: false});
@@ -141,16 +156,81 @@ class Schedule extends Component{
                   <View style={styles.schedule}>
                       <Text style={{fontSize: 20}}>Add a new Schedule</Text>
                       <TouchableOpacity onPress={()=>{
+                          this.setState({id: 0});
+                          this.setState({method: 'POST'});
                           this.setState({modalScheduleVisible: true});
                       }}>
                       <FontAwesomeIcon icon={faPlus} size="25" />
                       </TouchableOpacity>
+                      
                   </View>
               <FlatList data={this.state.schedules} renderItem={(schedule)=>{
                   return(
                     <View style={styles.list}>
-                    <Text style={{fontSize: 15}}>{schedule.item.name}</Text>
-                    <FontAwesomeIcon icon={faPlus} size="20" />
+                    <Text style={{fontSize: 15}}>{schedule.item.schedule.name}</Text>
+                    <View style={{flexDirection: 'row'}}>
+                    <TouchableOpacity  style={{marginRight:15}} onPress={()=>{
+                          this.setState({method: 'PUT'});
+                          this.setState({id: schedule.item.schedule.id});
+                          this.setState({modalScheduleVisible: true});
+
+                      }}>
+                    <FontAwesomeIcon icon={faEdit} size="20" />
+                    </TouchableOpacity>
+                    <TouchableOpacity style={{marginRight:15}} onPress={()=>{
+                          axios({
+                            headers:{
+                                'Authorization': 'Token '+this.props.route.params.token,
+                              'Content-Type':'application/json',
+                              
+                            },
+                            url: 'https://healthbestbackend.herokuapp.com/app/schedules/'+schedule.item.schedule.id+'/',
+                            method: 'DELETE',
+                          }).then(()=>{
+                            var schedules=this.state.schedules;
+                            for(var i=0;i<schedules.length;i++)
+                          {
+                            if(schedules[i].schedule.id==schedule.item.schedule.id)
+                            {
+                              schedules.splice(i,1);
+                              break;
+                            }
+                          }
+                          this.setState({schedules: schedules});
+
+                            
+                          
+                        });
+                      }}>
+                      <FontAwesomeIcon icon={faTrash} size="20" />
+                      </TouchableOpacity>
+                      <TouchableOpacity onPress={()=>{
+                          var schedules=this.state.schedules;
+                          var scheduleind=null;
+                          var index=0;
+                          for(var i=0;i<schedules.length;i++)
+                          {
+                            if(schedules[i].schedule.id==schedule.item.schedule.id)
+                            {
+                              scheduleind=schedules[i];
+                              index=i;
+                              break;
+                            }
+                          }
+                          if(schedule.item.icon==faArrowDown)
+                          {
+                            scheduleind.icon=faArrowUp;
+                          }
+                          else
+                          {
+                            scheduleind.icon=faArrowDown;
+                          }
+                          schedules[index]=scheduleind;
+                          this.setState({schedules:schedules});
+                      }}>
+                      <FontAwesomeIcon icon={schedule.item.icon} size="20" />
+                      </TouchableOpacity>
+                      </View>
             </View>
                   );
               }}/>
@@ -228,7 +308,6 @@ const styles=StyleSheet.create({
       },
       list:{
         color: '#fff',
-        padding: 3,
         fontFamily: 'arial',
         width: '90%',
         alignSelf: 'center',
