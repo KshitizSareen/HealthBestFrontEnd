@@ -18,10 +18,12 @@ import {
   Modal,
   TouchableHighlight,
   Alert,
+  TouchableOpacity
 } from 'react-native';
 import Authentication from './components/Authentication.js';
 import Diseases from './components/Diseases.js';
 import DiseasePage from './components/DiseasePage.js';
+import Schedule from './components/Schedule.js';
 var dimensions=Dimensions.get('window');
 var width=dimensions.width;
 var height=dimensions.height;
@@ -44,15 +46,32 @@ class App extends Component{
           }}/>
           <Stack.Screen name="Diseases"
           component={Diseases}
-          options={{
+          options={(options)=>{
+
+            return{
             title: 'Diseases',
-            headerStyle: {backgroundColor: '#F0f0f7'}
-          }}/>
+            headerStyle: {backgroundColor: '#F0f0f7'},
+            headerRight: ()=>{
+              return(
+                <TouchableOpacity style={styles.button} onPress={()=>{
+                  options.navigation.navigate("Schedule",{user:options.route.params.user,token:options.route.params.token});
+                }}>
+                  <Text>Schedules</Text>
+                </TouchableOpacity>
+              );
+            }
+          }}}/>
           <Stack.Screen name="DiseasePage"
           component={DiseasePage}
           options={{
             title: 'Symptoms',
-            headerStyle: {backgroundColor: '#F0f0f7'}
+            headerStyle: {backgroundColor: '#F0f0f7'},
+          }}/>
+          <Stack.Screen name="Schedule"
+          component={Schedule}
+          options={{
+            title: 'Schedules',
+            headerStyle: {backgroundColor: '#F0f0f7'},
           }}/>
         </Stack.Navigator>
       </NavigationContainer>
@@ -60,5 +79,17 @@ class App extends Component{
   }
 }
 
-
+const styles=StyleSheet.create({
+  button: {
+    borderRadius: 5,
+    color: '#fff',
+    backgroundColor: 'lightblue',
+    padding: 10,
+    fontFamily: 'sans-serif',
+    fontSize: 10,
+    alignItems: 'center',
+    alignSelf: 'center',
+    margin:10,
+  },
+});
 export default App;

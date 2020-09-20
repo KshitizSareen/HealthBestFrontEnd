@@ -93,7 +93,8 @@ class Diseases extends Component{
       componentDidMount(){
         var checkedsymptoms=[];
         NetInfo.fetch().then((state)=>{
-          state.isConnected ? 
+          if(state.isConnected)
+          {
           axios({
             headers:{
             'Authorization': 'Token '+this.props.route.params.token,
@@ -135,7 +136,9 @@ class Diseases extends Component{
             var array=new Array();
             array.push(symptoms);
             this.setState({symptoms:array});
-          }) : Alert.alert('', 'Please connect to the internet');
+          }); }
+          else
+          { Alert.alert('', 'Please connect to the internet');}
         })
       }
       onSelectedItemsChange = (selectedItems) => {

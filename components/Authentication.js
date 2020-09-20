@@ -27,6 +27,7 @@ class Authentication extends Component{
       password: '',
       rememberme: 'false',
       currentpage: "login",
+      user:0,
 
     };
   }
@@ -114,8 +115,25 @@ class Authentication extends Component{
               if(this.state.currentpage=="login")
               {
               NetInfo.fetch().then((state) => {
-                state.isConnected
-                  ? axios({
+                if(state.isConnected)
+                  {axios({
+                    headers:{
+                      'Content-Type':'application/json',
+                    },
+                    url: 'https://healthbestbackend.herokuapp.com/app/users/',
+                    method: 'GET',
+                  }).then(res=>{
+                    for(var i=0;i<res.data.length;i++)
+                    {
+                      if(res.data[i].username==this.state.username.toLowerCase())
+                      {
+                        this.setState({user: res.data[i].id});
+                        break;
+                      }
+                    }
+                      
+                    });
+                    axios({
                     headers:{
                     
                   'Content-Type':'application/json',
@@ -126,10 +144,10 @@ class Authentication extends Component{
                   url: 'https://healthbestbackend.herokuapp.com/auth/',
                     method: 'POST',
                   
-                  }).then(res=>this.props.navigation.navigate('Diseases',{token: res.data.token})).catch(err=>{
+                  }).then(res=>this.props.navigation.navigate('Diseases',{token: res.data.token,user: this.state.user})).catch(err=>{
                     Alert.alert("","Invalid Credentials");
-                  })
-                  : Alert.alert('', 'Please connect to the internet');
+                  });}
+                  else{ Alert.alert('', 'Please connect to the internet');}
               });
             }
             else
