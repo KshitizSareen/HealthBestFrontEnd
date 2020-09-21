@@ -24,6 +24,8 @@ import Authentication from './components/Authentication.js';
 import Diseases from './components/Diseases.js';
 import DiseasePage from './components/DiseasePage.js';
 import Schedule from './components/Schedule.js';
+import Time from './components/Times.js';
+import Medicine from './components/Medicines.js';
 var dimensions=Dimensions.get('window');
 var width=dimensions.width;
 var height=dimensions.height;
@@ -71,6 +73,18 @@ class App extends Component{
           component={Schedule}
           options={{
             title: 'Schedules',
+            headerStyle: {backgroundColor: '#F0f0f7'},
+          }}/>
+          <Stack.Screen name="Time"
+          component={Time}
+          options={{
+            title: 'Times',
+            headerStyle: {backgroundColor: '#F0f0f7'},
+          }}/>
+          <Stack.Screen name="Medicine"
+          component={Medicine}
+          options={{
+            title: 'Medicines',
             headerStyle: {backgroundColor: '#F0f0f7'},
           }}/>
         </Stack.Navigator>

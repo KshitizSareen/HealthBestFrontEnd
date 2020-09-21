@@ -13,74 +13,79 @@ import {
 import NetInfo from '@react-native-community/netinfo';
 import {FontAwesomeIcon} from '@fortawesome/react-native-fontawesome';
 import {faPlus,faArrowDown, faTrash, faEdit, faArrowUp, faLink, faList, faArrowRight} from '@fortawesome/free-solid-svg-icons';
-import SectionedMultiSelect from 'react-native-sectioned-multi-select';
+import DateTimePicker from '@react-native-community/datetimepicker';
 import axios from 'axios';
+import DateTimePickerModal from "react-native-modal-datetime-picker";
 var dimensions=Dimensions.get('window');
 var width=dimensions.width;
 var height=dimensions.height;
 width=parseInt(width);
 height=parseInt(height);
-class Schedule extends Component{
+class Medicine extends Component{
     constructor(props) {
         super(props);
     
         this.state = {
-            schedules: [],
-            modalScheduleVisible: false,
-            scheduleName: "",
+            medicines: [],
+            modalMedicineVisible: false,
+            quantity: 0,
+            description: "",
             method: 'POST',
             id: 0,
         };
       }
-      componentDidMount()
-      {
-            NetInfo.fetch().then((state)=>{
-                if(state.isConnected)
-                {
-                    axios({
-                    headers:{
-                      'Content-Type':'application/json',
-                      'Authorization': 'Token '+this.props.route.params.token,
-                    },
-                    url: 'https://healthbestbackend.herokuapp.com/app/schedules/',
-                    method: 'GET',
-                  }).then((res)=>{
-                      var schedules=new Array();
-                      for(var i=0;i<res.data.length;i++)
+      componentDidMount(){
+        NetInfo.fetch().then((state)=>{
+            if(state.isConnected)
+            {
+                axios({
+                headers:{
+                  'Content-Type':'application/json',
+                  'Authorization': 'Token '+this.props.route.params.token,
+                },
+                url: 'https://healthbestbackend.herokuapp.com/app/medicines/',
+                method: 'GET',
+              }).then((res)=>{
+                  var medicines=new Array();
+                  for(var i=0;i<res.data.length;i++)
+                  {
+                      if(res.data[i].time==this.props.route.params.timeid)
                       {
-                          if(res.data[i].user==this.props.route.params.user)
-                          {
-                              schedules.push(res.data[i]);
-                          }
+                          medicines.push(res.data[i]);
                       }
-                      this.setState({schedules: schedules});
-                    
-                  });
-                }
-                else
-                {
-                    Alert.alert('', 'Please connect to the internet');
-                }
-            })
+                  }
+                  this.setState({medicines: medicines});
+                
+              });
+            }
+            else
+            {
+                Alert.alert('', 'Please connect to the internet');
+            }
+        });
       }
       render()
       {
           return(
-              <View style={styles.body}>
+              <View style={StyleSheet.body}>
                    <Modal
           animationType="slide"
           transparent={true}
-          visible={this.state.modalScheduleVisible}
+          visible={this.state.modalMedicineVisible}
         >
             
             <View style={styles.modal}>
-                <TextInput placeholder="   Enter your schedule name" style={styles.textinput} onChangeText={(value) => {
-                this.setState({scheduleName: value});
+                <TextInput placeholder="   Enter your quantity" style={styles.textinput} onChangeText={(value) => {
+                this.setState({quantity: value});
+              }}/>
+              <TextInput placeholder="   Enter your decription" style={styles.textinput} onChangeText={(value) => {
+                this.setState({description: value});
               }}/>
                 <TouchableOpacity style={styles.button} onPress={()=>{
                     var body={
-                        name: this.state.scheduleName,
-                        user: this.props.route.params.user,
+                        time: this.props.route.params.timeid,
+                        quantity: parseFloat(this.state.quantity),
+                        description: this.state.description,
                     };
                     var id="";
                     if(this.state.id==0)
@@ -100,28 +105,29 @@ class Schedule extends Component{
                           
                         },
                         data: body,
-                        url: 'https://healthbestbackend.herokuapp.com/app/schedules/'+id,
+                        url: 'https://healthbestbackend.herokuapp.com/app/medicines/'+id,
                         method: this.state.method,
                       }).then((res)=>{
-                        var schedules=this.state.schedules;
+                        var medicines=this.state.medicines;
                         if(this.state.method=="PUT")
                         {
-                          for(var i=0;i<schedules.length;i++)
+                          for(var i=0;i<medicines.length;i++)
                           {
-                            if(schedules[i].id==res.data.id)
+                            if(medicines[i].id==res.data.id)
                             {
-                              schedules[i].name=res.data.name;
+                              medicines[i].quantity=res.data.quantity;
+                              medicines[i].description=res.data.description;
                               break;
                             }
                           }
                         }
                         else
                         {
-                          schedules.push(res.data);
+                          medicines.push(res.data);
 
                         }
-                        this.setState({schedules: schedules});
-                        this.setState({modalScheduleVisible: false});
+                        this.setState({medicines: medicines});
+                        this.setState({modalMedicineVisible: false});
                       });
                      }
                      else
@@ -131,35 +137,38 @@ class Schedule extends Component{
                    })
                 }}>
                     
-                    <Text>{this.state.method=="POST" ? 'Create': 'Update'} Schedule</Text>
+                    <Text>{this.state.method=="POST" ? 'Create': 'Update'} Item</Text>
                 </TouchableOpacity>
                 <TouchableOpacity style={styles.button} onPress={()=>{
-                    this.setState({modalScheduleVisible: false});
+                    this.setState({modalMedicineVisible: false});
                 }}>
                         <Text>Close</Text>
                     </TouchableOpacity>
             </View>
         </Modal>
-                  <View style={styles.schedule}>
-                      <Text style={{fontSize: 20}}>Add a new Schedule</Text>
+        <View style={styles.medicine}>
+                      <Text style={{fontSize: 20}}>Add a new Item</Text>
                       <TouchableOpacity onPress={()=>{
                           this.setState({id: 0});
                           this.setState({method: 'POST'});
-                          this.setState({modalScheduleVisible: true});
+                          this.setState({modalMedicineVisible: true});
                       }}>
                       <FontAwesomeIcon icon={faPlus} size="25" />
                       </TouchableOpacity>
                       
                   </View>
-              <FlatList data={this.state.schedules} renderItem={(schedule)=>{
+                  <FlatList data={this.state.medicines} renderItem={(medicine)=>{
                   return(
                     <View style={styles.list}>
-                    <Text style={{fontSize: 15}}>{schedule.item.name}</Text>
+                        <View style={{flexDirection: 'row',justifyContent: 'space-between'}}>
+                    <Text style={{fontSize: 15,marginRight: 10,marginLeft: 10}}>{medicine.item.quantity}</Text>
+                  <Text style={{fontSize: 15}}>{medicine.item.description}</Text>
+                  </View>
                     <View style={{flexDirection: 'row'}}>
                     <TouchableOpacity  style={{marginRight:15}} onPress={()=>{
                           this.setState({method: 'PUT'});
-                          this.setState({id: schedule.item.id});
-                          this.setState({modalScheduleVisible: true});
+                          this.setState({id: medicine.item.id});
+                          this.setState({modalMedicineVisible: true});
 
                       }}>
                     <FontAwesomeIcon icon={faEdit} size="20" />
@@ -174,19 +183,19 @@ class Schedule extends Component{
                               'Content-Type':'application/json',
                               
                             },
-                            url: 'https://healthbestbackend.herokuapp.com/app/schedules/'+schedule.item.id+'/',
+                            url: 'https://healthbestbackend.herokuapp.com/app/medicines/'+medicine.item.id+'/',
                             method: 'DELETE',
                           }).then(()=>{
-                            var schedules=this.state.schedules;
-                            for(var i=0;i<schedules.length;i++)
+                            var medicines=this.state.medicines;
+                            for(var i=0;i<medicines.length;i++)
                           {
-                            if(schedules[i].id==schedule.item.id)
+                            if(medicines[i].id==medicine.item.id)
                             {
-                              schedules.splice(i,1);
+                              medicines.splice(i,1);
                               break;
                             }
                           }
-                          this.setState({schedules: schedules});
+                          this.setState({medicines: medicines});
 
                             
                           
@@ -199,18 +208,12 @@ class Schedule extends Component{
                       }}>
                       <FontAwesomeIcon icon={faTrash} size="20" />
                       </TouchableOpacity>
-                      <TouchableOpacity onPress={()=>{
-                        this.props.navigation.navigate("Time",{token: this.props.route.params.token,scheduleid: schedule.item.id});
-                      }}>
-                      <FontAwesomeIcon icon={faArrowRight} size="20" />
-                      </TouchableOpacity>
                       </View>
             </View>
                   );
               }}/>
               </View>
-              
-          )
+          );
       }
 
 }
@@ -218,7 +221,7 @@ const styles=StyleSheet.create({
     body:{
         flex: 1,
     },
-    schedule:{
+    medicine:{
         flexDirection: 'row',
         margin: 10,
         fontSize: 50,
@@ -276,7 +279,7 @@ const styles=StyleSheet.create({
     elevation: 5,
     position: 'absolute',
     width: '75%',
-    height: 0.25*height,
+    height: 0.35*height,
     top: 0.25*height,
     
       },
@@ -296,5 +299,5 @@ const styles=StyleSheet.create({
         borderRadius: 20,
         justifyContent: 'space-between',
       }
-})
-export default Schedule;
+});
+export default Medicine;
