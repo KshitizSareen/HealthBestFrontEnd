@@ -12,6 +12,9 @@ target 'HealthBest' do
 
   pod 'RNGestureHandler', :path => '../node_modules/react-native-gesture-handler'
 
+
+  pod 'RNBackgroundFetch', :path => '../node_modules/react-native-background-fetch'
+
   target 'HealthBestTests' do
     inherit! :complete
     # Pods for testing

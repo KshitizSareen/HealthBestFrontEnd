@@ -13,9 +13,7 @@ import {
 import NetInfo from '@react-native-community/netinfo';
 import {FontAwesomeIcon} from '@fortawesome/react-native-fontawesome';
 import {faPlus,faArrowDown, faTrash, faEdit, faArrowUp, faLink, faList, faArrowRight} from '@fortawesome/free-solid-svg-icons';
-import DateTimePicker from '@react-native-community/datetimepicker';
 import axios from 'axios';
-import DateTimePickerModal from "react-native-modal-datetime-picker";
 var dimensions=Dimensions.get('window');
 var width=dimensions.width;
 var height=dimensions.height;
@@ -29,7 +27,7 @@ class Medicine extends Component{
             medicines: [],
             modalMedicineVisible: false,
             quantity: 0,
-            description: "",
+            description: "description",
             method: 'POST',
             id: 0,
         };
@@ -75,10 +73,10 @@ class Medicine extends Component{
         >
             
             <View style={styles.modal}>
-                <TextInput placeholder="   Enter your quantity" style={styles.textinput} onChangeText={(value) => {
+                <TextInput defaultValue={this.state.quantity} placeholder="   Enter your quantity" style={styles.textinput} onChangeText={(value) => {
                 this.setState({quantity: value});
               }}/>
-              <TextInput placeholder="   Enter your decription" style={styles.textinput} onChangeText={(value) => {
+              <TextInput defaultValue={this.state.description} placeholder="   Enter your decription" style={styles.textinput} onChangeText={(value) => {
                 this.setState({description: value});
               }}/>
                 <TouchableOpacity style={styles.button} onPress={()=>{

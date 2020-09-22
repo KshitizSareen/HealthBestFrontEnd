@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "227481093802",
+    "firebase_url": "https://healthbest-7142e.firebaseio.com",
+    "project_id": "healthbest-7142e",
+    "storage_bucket": "healthbest-7142e.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:227481093802:android:5f3396992f50cfa7aef2d3",
+        "android_client_info": {
+          "package_name": "com.healthbest"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "227481093802-8b8q1ee4mks98ck26580vgf2k5jjlj68.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCC5pgWNaDpMiZQCf2ufcRH5blOOEmIcac"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "227481093802-8b8q1ee4mks98ck26580vgf2k5jjlj68.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -33,8 +33,11 @@ width=parseInt(width);
 height=parseInt(height);
 const Stack=createStackNavigator();
 class App extends Component{
+  lastID=0;
   constructor(props) {
     super(props);
+  }
+  componentDidMount(){
   }
   render(){
     return(

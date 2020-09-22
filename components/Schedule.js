@@ -27,7 +27,7 @@ class Schedule extends Component{
         this.state = {
             schedules: [],
             modalScheduleVisible: false,
-            scheduleName: "",
+            scheduleName: "schedule",
             method: 'POST',
             id: 0,
         };
@@ -74,7 +74,7 @@ class Schedule extends Component{
         >
             
             <View style={styles.modal}>
-                <TextInput placeholder="   Enter your schedule name" style={styles.textinput} onChangeText={(value) => {
+                <TextInput defaultValue={this.state.scheduleName} placeholder="   Enter your schedule name" style={styles.textinput} onChangeText={(value) => {
                 this.setState({scheduleName: value});
               }}/>
                 <TouchableOpacity style={styles.button} onPress={()=>{

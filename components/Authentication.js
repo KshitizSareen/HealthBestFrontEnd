@@ -19,6 +19,7 @@ width=parseInt(width);
 height=parseInt(height);
 import axios from 'axios';
 class Authentication extends Component{
+  lastId=0;
   constructor(props) {
     super(props);
 
