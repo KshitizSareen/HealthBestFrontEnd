@@ -12,7 +12,7 @@ import {
 } from 'react-native';
 import NetInfo from '@react-native-community/netinfo';
 import {FontAwesomeIcon} from '@fortawesome/react-native-fontawesome';
-import {faSearch,faCheck,faWindowClose,faArrowDown,faArrowUp} from '@fortawesome/free-solid-svg-icons';
+import {faSearch,faCheck,faWindowClose} from '@fortawesome/free-solid-svg-icons';
 import SectionedMultiSelect from 'react-native-sectioned-multi-select';
 import axios from 'axios';
 

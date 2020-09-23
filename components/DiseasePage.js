@@ -1,20 +1,11 @@
-import React, {Component} from 'react';
+import React from 'react';
 import {
   StyleSheet,
   View,
   Text,
-  TouchableOpacity,
-  Alert,
   FlatList,
-  Dimensions,
-  TextInput,
-  Image, ScrollView
+  Dimensions, ScrollView
 } from 'react-native';
-import NetInfo from '@react-native-community/netinfo';
-import {FontAwesomeIcon} from '@fortawesome/react-native-fontawesome';
-import {faSearch,faCheck,faWindowClose,faArrowDown,faArrowUp} from '@fortawesome/free-solid-svg-icons';
-import SectionedMultiSelect from 'react-native-sectioned-multi-select';
-import axios from 'axios';
 
 var dimensions=Dimensions.get('window');
 var width=dimensions.width;

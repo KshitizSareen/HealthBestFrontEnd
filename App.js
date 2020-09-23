@@ -12,12 +12,8 @@ import {NavigationContainer} from '@react-navigation/native';
 import {createStackNavigator} from '@react-navigation/stack';
 import {
   StyleSheet,
-  View,
   Text,
   Dimensions,
-  Modal,
-  TouchableHighlight,
-  Alert,
   TouchableOpacity
 } from 'react-native';
 import Authentication from './components/Authentication.js';

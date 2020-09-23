@@ -8,11 +8,11 @@ import {
   FlatList,
   Dimensions,
   TextInput,
-  Image, ScrollView,Modal, KeyboardAvoidingView
+  Modal
 } from 'react-native';
 import NetInfo from '@react-native-community/netinfo';
 import {FontAwesomeIcon} from '@fortawesome/react-native-fontawesome';
-import {faPlus,faArrowDown, faTrash, faEdit, faArrowUp, faLink, faList, faArrowRight} from '@fortawesome/free-solid-svg-icons';
+import {faPlus,faTrash, faEdit} from '@fortawesome/free-solid-svg-icons';
 import axios from 'axios';
 var dimensions=Dimensions.get('window');
 var width=dimensions.width;

@@ -7,23 +7,17 @@ import {
   Alert,
   FlatList,
   Dimensions,
-  TextInput,
-  Image, ScrollView,Modal, KeyboardAvoidingView
 } from 'react-native';
 import NetInfo from '@react-native-community/netinfo';
 import {FontAwesomeIcon} from '@fortawesome/react-native-fontawesome';
-import {faPlus,faArrowDown, faTrash, faEdit, faArrowUp, faLink, faList, faArrowRight} from '@fortawesome/free-solid-svg-icons';
-import DateTimePicker from '@react-native-community/datetimepicker';
+import {faPlus, faTrash, faEdit,faArrowRight} from '@fortawesome/free-solid-svg-icons';
 import axios from 'axios';
 import DateTimePickerModal from "react-native-modal-datetime-picker";
-import BackgroundFetch from "react-native-background-fetch";
-import NotificationService from './Notification Service';
 var dimensions=Dimensions.get('window');
 var width=dimensions.width;
 var height=dimensions.height;
 width=parseInt(width);
 height=parseInt(height);
-const notificationService = new NotificationService();
 class Time extends Component{
     constructor(props) {
         super(props);
@@ -122,62 +116,6 @@ class Time extends Component{
                 Alert.alert('', 'Please connect to the internet');
             }
         });
-        BackgroundFetch.configure(
-          {
-            minimumFetchInterval: 15, // <-- minutes (15 is minimum allowed)
-            // Android options
-            forceAlarmManager: false, // <-- Set true to bypass JobScheduler.
-            stopOnTerminate: false,
-            startOnBoot: true,
-            requiredNetworkType: BackgroundFetch.NETWORK_TYPE_ANY, // Network connection needed
-          },
-          async taskId => {
-            // Do stuff with notifications, for example:
-
-            NetInfo.fetch().then((state)=>{
-              if(state.isConnected)
-              {
-                  axios({
-                  headers:{
-                    'Content-Type':'application/json',
-                    'Authorization': 'Token '+this.props.route.params.token,
-                  },
-                  url: 'https://healthbestbackend.herokuapp.com/app/times/',
-                  method: 'GET',
-                }).then((res)=>{
-                    const date = new Date(Date.now()); // adjust according to your use case
-                    const datemin=new Date(Date.now()-(15*60*1000));
-                    var times=new Array();
-                    for(var i=0;i<res.data.length;i++)
-                    {
-                        times.push(res.data[i]);
-                    }
-                    var check=0;
-                    for(var i=0;i<times.length;i++)
-                    {
-                          var time=times[i].time;
-                          var seconds=new Date('1970-01-01T' + time+ 'Z').getTime();
-                          if(Date.parse('01/01/2011 '+time) >= Date.parse('01/01/2011 '+datemin.toLocaleTimeString()) && Date.parse('01/01/2011 '+time) <= Date.parse('01/01/2011 '+date.toLocaleTimeString()))
-                          {
-                            check=1;
-                          
-                          }
-                        
-                    }
-                    if(check==1)
-                    {
-                    notificationService.scheduleNotif(new Date(Date.now()),"Alert", "Its time to take your medicine");
-                    }
-                  
-                });
-              }
-          });
-          BackgroundFetch.finish(taskId);
-          },
-          error => {
-            console.log('[js] RNBackgroundFetch failed to start');
-          },
-        );
       }
       getTime=(time)=>{
         var hours=time[0]+time[1];
