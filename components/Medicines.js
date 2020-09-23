@@ -26,8 +26,8 @@ class Medicine extends Component{
         this.state = {
             medicines: [],
             modalMedicineVisible: false,
-            quantity: 0,
-            description: "description",
+            quantity: "",
+            description: "",
             method: 'POST',
             id: 0,
         };
@@ -73,13 +73,23 @@ class Medicine extends Component{
         >
             
             <View style={styles.modal}>
-                <TextInput defaultValue={this.state.quantity} placeholder="   Enter your quantity" style={styles.textinput} onChangeText={(value) => {
+                <TextInput  placeholder="   Enter your quantity" style={styles.textinput} onChangeText={(value) => {
                 this.setState({quantity: value});
               }}/>
-              <TextInput defaultValue={this.state.description} placeholder="   Enter your decription" style={styles.textinput} onChangeText={(value) => {
+              <TextInput  placeholder="   Enter your decription" style={styles.textinput} onChangeText={(value) => {
                 this.setState({description: value});
               }}/>
                 <TouchableOpacity style={styles.button} onPress={()=>{
+                  if(this.state.quantity=="")
+                  {
+                    Alert.alert("","Please enter a quantity");
+                    return;
+                  }
+                  if(this.state.description=="")
+                  {
+                    Alert.alert("","Please enter a description");
+                    return;
+                  }
                     var body={
                         time: this.props.route.params.timeid,
                         quantity: parseFloat(this.state.quantity),
