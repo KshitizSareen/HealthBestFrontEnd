@@ -18,10 +18,11 @@ componentDidMount() {
         firebase.notifications.Android.Importance.Max
     ).setDescription('A natural description of the channel');
     firebase.notifications().android.createChannel(channel);
-
+    
     // showing notification when app is in foreground.
     this.foregroundStateListener = firebase.notifications().onNotification((notification) => {
-        firebase.notifications().displayNotification(notification).catch(err => console.error(err));
+       
+      firebase.notifications().displayNotification(notification).catch(err => console.error(err));
     });
     
     // app tapped/opened in killed state
