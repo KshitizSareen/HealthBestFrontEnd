@@ -13,8 +13,6 @@ import {
 import NetInfo from '@react-native-community/netinfo';
 import {FontAwesomeIcon} from '@fortawesome/react-native-fontawesome';
 import {faPlus, faTrash, faEdit, faArrowRight} from '@fortawesome/free-solid-svg-icons';
-import BackgroundFetch from "react-native-background-fetch";
-import NotificationService from './Notification Service';
 import axios from 'axios';
 var dimensions=Dimensions.get('window');
 var width=dimensions.width;
@@ -35,84 +33,6 @@ class Schedule extends Component{
       }
       componentDidMount()
       {
-        BackgroundFetch.configure(
-          {
-            minimumFetchInterval: 15, // <-- minutes (15 is minimum allowed)
-            // Android options
-            forceAlarmManager: false, // <-- Set true to bypass JobScheduler.
-            stopOnTerminate: false,
-            startOnBoot: true,
-            requiredNetworkType: BackgroundFetch.NETWORK_TYPE_ANY, // Network connection needed
-          },
-          async taskId => {
-            // Do stuff with notifications, for example:
-            NetInfo.fetch().then((state)=>{
-              if(state.isConnected)
-              {
-                const notificationService = new NotificationService();
-                var times=new Array();
-                var schedules=new Array();
-                const date = new Date(Date.now()); // adjust according to your use case
-                        const datemin=new Date(Date.now()-(15*60*1000));
-                  axios({
-                  headers:{
-                    'Content-Type':'application/json',
-                    'Authorization': 'Token '+this.props.route.params.token,
-                  },
-                  url: 'https://healthbestbackend.herokuapp.com/app/schedules/',
-                  method: 'GET',
-                }).then((res)=>{
-                    for(var i=0;i<res.data.length;i++)
-                    {
-                        if(res.data[i].user==this.props.route.params.user)
-                        {
-                            schedules.push(res.data[i].id);
-                        }
-                    }
-                      axios({
-                        headers:{
-                          'Content-Type':'application/json',
-                          'Authorization': 'Token '+this.props.route.params.token,
-                        },
-                        url: 'https://healthbestbackend.herokuapp.com/app/times/',
-                        method: 'GET',
-                      }).then((res1)=>{
-                        var check=0;
-                        for(var i=0;i<schedules.length;i++)
-                    {
-                          for(var j=0;j<res1.data.length;j++)
-                          {
-                              if(res1.data[j].schedule==schedules[i])
-                              {
-                                  var time=res1.data[j].time;
-                                  if(Date.parse('01/01/2011 '+time) >= Date.parse('01/01/2011 '+datemin.toLocaleTimeString()) && Date.parse('01/01/2011 '+time) <= Date.parse('01/01/2011 '+date.toLocaleTimeString()))
-                              {
-                                notificationService.scheduleNotif(new Date(Date.now()),"Alert", "Its time to take your medicine");
-                                check=1;
-                                break;
-                              }
-                                  
-                              }
-                          }
-                          if(check==1)
-                          {
-                            break;
-                          }
-                        }
-                        
-                      });
-                    
-                  
-                });
-          
-              }});
-              
-          BackgroundFetch.finish(taskId);
-          },
-          error => {
-            console.log('[js] RNBackgroundFetch failed to start');
-          },
-        );
             NetInfo.fetch().then((state)=>{
                 if(state.isConnected)
                 {

@@ -1,72 +1,72 @@
-import PushNotification from 'react-native-push-notification';
+import React, { Component } from "react";
+import firebase from 'react-native-firebase';
+export default class NotificationService extends Component {
+  constructor(props) {
+    super(props);
+    this.getToken = this.getToken.bind(this);
+    this.requestPermission = this.requestPermission.bind(this);
+    this.checkNotificationPermission = this.checkNotificationPermission.bind(this);
+}
 
-export default class NotificationService {
-  constructor(onRegister, onNotification) {
-    this.configure(onRegister, onNotification);
-    this.lastId = 0;
-  }
-  // Handles a user push notification registration
-  configure(onRegister, onNotification, gcm = '') {
-    PushNotification.configure({
-      // (optional) Called when Token is generated (iOS and Android)
-      onRegister: onRegister,
+componentDidMount() {
+    this.checkNotificationPermission();
 
-      // (required) Called when a remote or local notification is opened or received
-      onNotification: onNotification,
+    // setting channel for notification
+    const channel = new firebase.notifications.Android.Channel(
+        'channelId',
+        'Channel Name',
+        firebase.notifications.Android.Importance.Max
+    ).setDescription('A natural description of the channel');
+    firebase.notifications().android.createChannel(channel);
 
-      // ANDROID ONLY: GCM Sender ID (optional - not required for local notifications, but is need to receive remote push notifications)
-      senderID: gcm,
-
-      /**
-       * (optional) default: true
-       * - Specified if permissions (ios) and token (android and ios) will requested or not,
-       * - if not, you must call PushNotificationsHandler.requestPermissions() later
-       */
-      requestPermissions: true,
+    // showing notification when app is in foreground.
+    this.foregroundStateListener = firebase.notifications().onNotification((notification) => {
+        firebase.notifications().displayNotification(notification).catch(err => console.error(err));
     });
-  }
-  // Send a direct push notification to the user
-  localNotif() {
-    this.lastId++;
-    PushNotification.localNotification({
-      /* Android Only Properties */
-      id: '' + this.lastId,
-      bigText: 'My big text that will be shown when notification is expanded',
-      subText: 'This is a subText',
-
-      /* iOS and Android properties */
-      title: 'Local Notification',
-      message: 'My Notification Message',
-      actions: '["Yes", "No"]', // (Android only) See the doc for notification actions to know more
+    
+    // app tapped/opened in killed state
+    this.appKilledStateListener = firebase.notifications().getInitialNotification()
+    .then((notificationOpen: NotificationOpen) => {
+        if (notificationOpen) {
+            // anything you want to do with notification object.....
+        }
     });
-  }
-
-  // Schedules a push notification by a given javascript Date object
-  scheduleNotif(date, title, message) {
-    this.lastId++;
-    PushNotification.localNotificationSchedule({
-      date: date,
-
-      /* Android Only Properties */
-      id: '' + this.lastId,
-      bigText: '',
-      subText: '',
-
-      /* iOS and Android properties */
-      title: title,
-      message: message,
+    
+    // app tapped/opened in foreground and background state
+    this.notificationOpenedListener = firebase.notifications().onNotificationOpened((notificationOpen: NotificationOpen) => {
+        // ...anything you want to do with notification object.....
     });
-  }
+}
 
-  checkPermission(cbk) {
-    return PushNotification.checkPermissions(cbk);
-  }
+componentWillUnmount() {
+    this.appKilledStateListener();
+    this.notificationOpenedListener();
+    this.foregroundStateListener();
+}
 
-  cancelNotif() {
-    PushNotification.cancelLocalNotifications({ id: '' + this.lastId });
-  }
+// firebase token for the user
+async getToken(){
+    firebase.messaging().getToken().then((fcmToken) => console.log(fcmToken));
+}
 
-  cancelAll() {
-    PushNotification.cancelAllLocalNotifications();
-  }
+// request permission if permission diabled or not given
+async requestPermission() {
+    try {
+        await firebase.messaging().requestPermission();
+    } catch (error) {}
+}
+
+// if permission enabled get firebase token else request permission
+async checkNotificationPermission() {
+    const enabled = await firebase.messaging().hasPermission();
+    if (enabled) {
+        this.getToken() // call function to get firebase token for personalized notifications.
+    } else {
+        this.requestPermission();
+    }
+}
+
+render() {
+    return null;
+}
 }
