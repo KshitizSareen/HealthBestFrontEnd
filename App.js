@@ -22,7 +22,6 @@ import DiseasePage from './components/DiseasePage.js';
 import Schedule from './components/Schedule.js';
 import Time from './components/Times.js';
 import Medicine from './components/Medicines.js';
-import NotificationService from './components/Notification Service.js';
 var dimensions=Dimensions.get('window');
 var width=dimensions.width;
 var height=dimensions.height;
@@ -38,7 +37,6 @@ class App extends Component{
   render(){
     return(
       <NavigationContainer>
-        <NotificationService/>
         <Stack.Navigator>
           <Stack.Screen name="Auth"
           component={Authentication}

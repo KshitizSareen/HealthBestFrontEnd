@@ -1,16 +1,12 @@
+import AsyncStorage from "@react-native-community/async-storage";
 import React, { Component } from "react";
 import firebase from 'react-native-firebase';
 export default class NotificationService extends Component {
   constructor(props) {
     super(props);
-    this.getToken = this.getToken.bind(this);
-    this.requestPermission = this.requestPermission.bind(this);
-    this.checkNotificationPermission = this.checkNotificationPermission.bind(this);
 }
 
 componentDidMount() {
-    this.checkNotificationPermission();
-
     // setting channel for notification
     const channel = new firebase.notifications.Android.Channel(
         'channelId',
@@ -38,34 +34,13 @@ componentDidMount() {
         // ...anything you want to do with notification object.....
     });
 }
-
 componentWillUnmount() {
     this.appKilledStateListener();
     this.notificationOpenedListener();
     this.foregroundStateListener();
 }
 
-// firebase token for the user
-async getToken(){
-    firebase.messaging().getToken().then((fcmToken) => console.log(fcmToken));
-}
-
-// request permission if permission diabled or not given
-async requestPermission() {
-    try {
-        await firebase.messaging().requestPermission();
-    } catch (error) {}
-}
-
-// if permission enabled get firebase token else request permission
-async checkNotificationPermission() {
-    const enabled = await firebase.messaging().hasPermission();
-    if (enabled) {
-        this.getToken() // call function to get firebase token for personalized notifications.
-    } else {
-        this.requestPermission();
-    }
-}
+// firebase token for the use
 
 render() {
     return null;

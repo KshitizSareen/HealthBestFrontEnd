@@ -15,7 +15,7 @@ import {FontAwesomeIcon} from '@fortawesome/react-native-fontawesome';
 import {faSearch,faCheck,faWindowClose} from '@fortawesome/free-solid-svg-icons';
 import SectionedMultiSelect from 'react-native-sectioned-multi-select';
 import axios from 'axios';
-
+import firebase from 'react-native-firebase';
 var dimensions=Dimensions.get('window');
 var width=dimensions.width;
 var height=dimensions.height;
@@ -32,6 +32,9 @@ class Diseases extends Component{
             filters: [],
             symptoms: [],
         };
+        this.getToken = this.getToken.bind(this);
+        this.requestPermission = this.requestPermission.bind(this);
+        this.checkNotificationPermission = this.checkNotificationPermission.bind(this);
       }
       icon = ({ name, size = 18, style }) => {
         // flatten the styles
@@ -91,6 +94,7 @@ class Diseases extends Component{
         return <View style={styles}>{iconComponent}</View>
       }
       componentDidMount(){
+        this.checkNotificationPermission();
         var checkedsymptoms=[];
         NetInfo.fetch().then((state)=>{
           if(state.isConnected)
@@ -141,6 +145,45 @@ class Diseases extends Component{
           { Alert.alert('', 'Please connect to the internet');}
         })
       }
+      async getToken(){
+        firebase.messaging().getToken().then((fcmToken) => {
+        var body={
+          devicetoken: fcmToken,
+          user: this.props.route.params.user,
+      };
+        NetInfo.fetch().then((state)=>{
+          if(state.isConnected)
+          {
+           axios({
+             headers:{
+                 'Authorization': 'Token '+this.props.route.params.token,
+               'Content-Type':'application/json',
+               
+             },
+             data: body,
+             url: 'https://healthbestbackend.herokuapp.com/app/devices/',
+             method: 'POST',
+           })
+          }
+        });});
+    }
+    
+    // request permission if permission diabled or not given
+    async requestPermission() {
+        try {
+            await firebase.messaging().requestPermission();
+        } catch (error) {}
+    }
+    
+    // if permission enabled get firebase token else request permission
+    async checkNotificationPermission() {
+        const enabled = await firebase.messaging().hasPermission();
+        if (enabled) {
+            this.getToken() // call function to get firebase token for personalized notifications.
+        } else {
+            this.requestPermission();
+        }
+    }
       onSelectedItemsChange = (selectedItems) => {
         this.setState({ selectedItems: selectedItems });
         var filterarray=new Array();
